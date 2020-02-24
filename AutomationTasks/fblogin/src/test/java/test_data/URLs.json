@@ -1,0 +1,7 @@
+{
+  "url": "https://www.facebook.com/",
+  "testUserApi": "https://graph.facebook.com/v6.0/194321465009057/accounts/test-users/?access_token=194321465009057%7CPkX0fxO7I6GvLo2mDfYjRtjE0rw",
+  "userNameApi": "https://graph.facebook.com/v6.0/%s?access_token=194321465009057%7CPkX0fxO7I6GvLo2mDfYjRtjE0rw&debug=all&format=json&method=get&pretty=0&suppress_http_code=1&transport=cors",
+  "firefoxDriverPath": "../WebDrivers/geckodriver",
+  "chromeDriverPath": "../WebDrivers/chromedriver"
+}

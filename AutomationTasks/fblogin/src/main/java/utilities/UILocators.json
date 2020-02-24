@@ -1,0 +1,19 @@
+{
+  "firstName":"//input[@name='firstname']",
+  "surName": "//input[@name='lastname']",
+  "mobileOrEmail": "//input[@name='reg_email__']",
+  "emailConfirmation":"//input[@name='reg_email_confirmation__']",
+  "password": "//input[@type='password' and @name='reg_passwd__']",
+  "birthDay": "//select[@id='day']",
+  "birthMonth": "//select[@id='month']",
+  "birthYear": "//select[@id='year']",
+  "gender": "//input[@type='radio' and @name='sex']",
+  "signUpButton": "//button[@type='submit' and @name='websubmit']",
+  "userNavigationPanel" : "//div[@id = 'userNavigationLabel']",
+  "logOutButton": "//a[@data-gt = '{\"ref\":\"async_menu\",\"logout_menu_click\":\"menu_logout\"}']",
+  "loginLocators": {
+    "emailLocator": "//input[@type='email' and @id='email' and @name='email']",
+    "passwordLocator": "//input[@type='password' and @id='pass' and @name='pass']",
+    "loginButton": "//input[@type='submit']"
+  }
+}

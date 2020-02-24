@@ -1,0 +1,777 @@
+{
+	"info": {
+		"_postman_id": "01758577-54ed-46f4-969e-f9aae604d85b",
+		"name": "API Playground",
+		"description": "These requests showcase some of the things you can do with the API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Highest Priced Products",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b7ff7b35-bc27-4098-a8ac-a93c3702040a",
+						"exec": [
+							"//Returns the JSON object parsed ",
+							"const jsonData = JSON.parse(responseBody);",
+							"var sorted = true;",
+							" ",
+							"//Returns the body for the data object",
+							"var jsonBody = jsonData.data;",
+							"var priceArray = [];",
+							"",
+							"//Check that the request is returned correctly",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Get the higest price\", function () {",
+							"   for (var item in jsonBody)",
+							"    { ",
+							"        priceArray.push(jsonBody[item].price);",
+							"    }",
+							"",
+							"    for (var i = 0; i < priceArray.length - 1; i++) {",
+							"        console.log(priceArray[i]);",
+							"    if (priceArray[i] < priceArray[i+1]) {",
+							"        sorted = false;",
+							"        break;",
+							"    }",
+							" }",
+							"    pm.expect(sorted).to.eql(true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhostURL}}/products?$sort[price]=-1",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "$sort[price]",
+							"value": "-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Product Name and Description Only",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "867657dc-7873-49ca-9a07-ebe90e9fb22f",
+						"exec": [
+							"//Returns the JSON object parsed ",
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"//Returns the body for the data object",
+							"var jsonBody = jsonData.data;",
+							"",
+							"var productName = pm.environment.get(\"productName\");",
+							"var productDescription = pm.environment.get(\"productDescription\");",
+							"",
+							"//Check that the request is returned correctly",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check a product name and description aganist variable set in the globel enviroment\", function () {",
+							"    for(var key in jsonBody)",
+							"    {   ",
+							"        if(jsonBody[key].name === productName && jsonBody[key].description === productDescription){",
+							"            pm.expect(jsonBody[key].name).to.eql(productName);",
+							"            pm.expect(jsonBody[key].description).to.eql(productDescription);",
+							"        } ",
+							"    }",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8a3ddffb-d4fe-4323-9443-e63e21ecb5ff",
+						"exec": [
+							"pm.environment.set(\"productName\", \"Duracell - AAA Batteries (4-Pack)\");",
+							"pm.environment.set(\"productDescription\", \"Compatible with select electronic devices; AAA size; DURALOCK Power Preserve technology; 4-pack\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhostURL}}/products?$select[]=name&$select[]=description",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "$select[]",
+							"value": "name"
+						},
+						{
+							"key": "$select[]",
+							"value": "description"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "TVs with free shipping and price between $500 and $800",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "83149acc-798b-46a6-8a3c-28904fa64c3b",
+						"exec": [
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"// var query = {};",
+							"// query = pm.request.url.query.get()",
+							"// console.log(query)",
+							"",
+							"//Check that the request is returned correctly",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"    ",
+							"pm.test(\"Check that the price returned is between 500 and 800\", function () {",
+							"    for(var x in jsonData.data){",
+							"    ",
+							"        if(jsonData.data[x].price > 500 || jsonData.data[x].price < 800)",
+							"        {   ",
+							"            for(var category in jsonData.data[x].categories){",
+							"                if(jsonData.data[x].categories[category].name == \"TVs\"){",
+							"                    pm.expect(jsonData.data[x].categories[category].name).to.eql(\"TVs\");",
+							"                }",
+							"            }",
+							"        }",
+							"    }",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhostURL}}/products?category.name=TVs&price[$gt]=500&price[$lt]=800&shipping[$eq]=0",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"products"
+					],
+					"query": [
+						{
+							"key": "category.name",
+							"value": "TVs"
+						},
+						{
+							"key": "price[$gt]",
+							"value": "500"
+						},
+						{
+							"key": "price[$lt]",
+							"value": "800"
+						},
+						{
+							"key": "shipping[$eq]",
+							"value": "0"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Category Names Only",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a343bd62-d61a-4e20-b0c5-b466455a68b5",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e7969d54-1ea1-4d25-bdf9-f75c029b68f3",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3030/categories?$select[]=name",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"categories"
+					],
+					"query": [
+						{
+							"key": "$select[]",
+							"value": "name"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Categories with TV in the name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b4cdef6e-c638-4abb-895b-b8a385f52ffb",
+						"exec": [
+							"const jsonResponse = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Checking that the categories name contain TV in their names \", function () {",
+							"    for (var key in jsonResponse){",
+							"        for (var item in jsonResponse[key]){",
+							"            var categoryName =  jsonResponse[key][item][\"name\"];",
+							"            pm.expect(categoryName).to.include(\"TV\");",
+							"        }",
+							"    }",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3030/categories?name[$like]=*TV*",
+					"host": [
+						"localhost"
+					],
+					"port": "3030",
+					"path": [
+						"categories"
+					],
+					"query": [
+						{
+							"key": "name[$like]",
+							"value": "*TV*"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find stores in Minnesota",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "e134016d-6499-4918-902f-63aebca61f55",
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "baddca15-7e2a-4928-a9b0-d688da40b5e8",
+						"exec": [
+							"//Returns the JSON object parsed ",
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"//Returns the body for the data object",
+							"var jsonBody = jsonData.data;",
+							"",
+							"var storeArray = [];",
+							"",
+							"//Check that the request is returned correctly",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Get the services' names for the Minnesto based on the state value",
+							"pm.test(\"Get the services' names for the Minnesto based on the state value\", function () {",
+							"    for (var key in jsonBody) {",
+							"        if(jsonBody[key].state === \"MN\")",
+							"        {",
+							"            for (var service in jsonBody[key].services)",
+							"            { ",
+							"                if(storeArray.includes(jsonBody[key].services[service].name) == false)",
+							"                {",
+							"                     pm.expect(jsonBody[key].services[service].name).not.eql(null);",
+							"                }",
+							"            }",
+							"        }",
+							"    }",
+							"    ",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhostURL}}/stores?state=MN",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"stores"
+					],
+					"query": [
+						{
+							"key": "state",
+							"value": "MN"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find stores that sell Apple products",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5ea00bcb-3474-4957-99fd-c37bf64a9c9c",
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "85257565-6c12-4769-b156-cdf64ecccd55",
+						"exec": [
+							"//Returns the JSON object parsed ",
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"//Returns the body for the data object",
+							"var jsonBody = jsonData.data;",
+							"",
+							"//Check that the request is returned correctly",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Loop through the stores' services to check if it services 'Apple Shop' and assert on the store names",
+							"pm.test(\"Get the stores' names that have Apple Shop service\", function () {",
+							"    for (var key in jsonBody) {",
+							"        for (var service in jsonBody[key].services)",
+							"        {",
+							"            if(jsonBody[key].services[service].name === \"Apple Shop\")",
+							"            {",
+							"                pm.expect(jsonBody[key].name).not.eql(null);",
+							"                ",
+							"            }",
+							"        }",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhostURL}}/stores?service.name=Apple Shop",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"stores"
+					],
+					"query": [
+						{
+							"key": "service.name",
+							"value": "Apple Shop"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find Stores Within 10 Miles of Beverly Hills",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e33823d-bede-49a1-97fb-0e285cd25b6a",
+						"exec": [
+							"const jsonResponse = JSON.parse(responseBody);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Check total number of stores within 10 Miles of Beverly Hills\", function () {",
+							"    pm.expect(jsonResponse.total).to.eql(8);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{localhostURL}}/stores?near=90210&service.name=Windows%20Store",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"stores"
+					],
+					"query": [
+						{
+							"key": "near",
+							"value": "90210"
+						},
+						{
+							"key": "service.name",
+							"value": "Windows%20Store"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00e72a35-aa34-4aed-abd1-2ca159e00aa4",
+						"exec": [
+							"//Returns the JSON object parsed ",
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"//Set the product name and product description in the locale enviroment variables to be used by other test cases ",
+							"pm.environment.set(\"productName\", jsonData.name);",
+							"pm.environment.set(\"productDescription\", jsonData.description);",
+							"",
+							"//Assert that the request created successfully ",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"//Assert that the product name is created as expected ",
+							"pm.test(\"Check that the product name is iPhone XS\", function () {",
+							"    pm.expect(jsonData.name).to.eql(\"iPhone XS\");",
+							"});",
+							"",
+							"//Assert that the product description is created as expected ",
+							"pm.test(\"Check that the product description is returned correctly\", function () {",
+							"    pm.expect(jsonData.description).to.eql(\"This is a placeholder request for creating a new product.\");",
+							"});",
+							"",
+							"//Assert that the product description is created as expected ",
+							"pm.test(\"Check that the product price is 99.99\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.price).to.eql(99.99);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "092925d4-6ec2-4a25-a160-23e1af3e8bbf",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"iPhone XS\",\n\t\"type\": \"Mobile Phone\",\n\t\"upc\": \"12345676\",\n\t\"price\": 99.99,\n\t\"description\": \"This is a placeholder request for creating a new product.\",\n\t\"model\": \"NP12345\"\n}"
+				},
+				"url": {
+					"raw": "{{localhostURL}}/products",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Store",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "6156d9ac-7449-4528-901f-c7b5a2405cb1",
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "717e9fc3-ca5c-4bd0-a9b4-06b7a1afb9b5",
+						"exec": [
+							"//Returns the JSON object parsed ",
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"//Assert that the request created successfully ",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"//Assert that the store name is created as expected ",
+							"pm.test(\"Check that the store name is Tradeline Store\", function () {",
+							"    pm.expect(jsonData.name).to.eql(\"Tradeline Store\");",
+							"});",
+							"",
+							"//Assert that the store address is created as expected ",
+							"pm.test(\"Check that the store address is returned correctly\", function () {",
+							"    pm.expect(jsonData.address).to.eql(\"123 Fake St\");",
+							"});",
+							"",
+							"//Assert that the store address is created as expected ",
+							"pm.test(\"Check that the city and the state are returned correctly\", function () {",
+							"    pm.expect(jsonData.city).to.eql(\"Cairo\");",
+							"    pm.expect(jsonData.state).to.eql(\"Egypt\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{      \n\t  \"name\": \"Tradeline Store\",\n      \"type\": \"BigBox\",\n      \"address\": \"123 Fake St\",\n      \"address2\": \"\",\n      \"city\": \"Cairo\",\n      \"state\": \"Egypt\",\n      \"zip\": \"55123\",\n      \"lat\": 44.969658,\n      \"lng\": -93.449539,\n      \"hours\": \"Mon: 10-9; Tue: 10-9; Wed: 10-9; Thurs: 10-9; Fri: 10-9; Sat: 10-9; Sun: 10-8\"\n}"
+				},
+				"url": {
+					"raw": "{{localhostURL}}/stores",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"stores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Service",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2d7cd980-743e-4f52-85a5-44a4e8bb0be2",
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "52f10dff-ec7e-4e30-baee-82674805b300",
+						"exec": [
+							"//Returns the JSON object parsed ",
+							"const jsonData = JSON.parse(responseBody);",
+							"",
+							"//Assert that the request created successfully ",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"//Assert that the service name created as expected ",
+							"pm.test(\"Check that the store address is returned correctly\", function () {",
+							"    pm.expect(jsonData.name).to.eql(\"New Service\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{      \n\t  \"name\": \"New Service\"\n}"
+				},
+				"url": {
+					"raw": "{{localhostURL}}/services",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "45ee0e31-fe6c-4089-8fca-c9b4428959d2",
+						"exec": [
+							"const jsonResponse = JSON.parse(responseBody);",
+							"",
+							"//Check that the category create request is created",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Check that the created category and name equals to the ones set on the enviroment variables\", function () {",
+							"    pm.expect(jsonResponse.name).to.eql(pm.environment.get(\"categoryName\"));",
+							"    var categoryId = pm.environment.get(\"categoryID\");",
+							"    pm.expect(jsonResponse.id).to.eql(categoryId.toString());",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ac421079-f461-4e26-bf27-2a4fb9074fd0",
+						"exec": [
+							"var catID = pm.environment.get(\"categoryID\");",
+							"pm.environment.set(\"categoryID\", catID+1);",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"{{categoryID}}\",\n\t\"name\": \"New Category\"\n}"
+				},
+				"url": {
+					"raw": "{{localhostURL}}/categories",
+					"host": [
+						"{{localhostURL}}"
+					],
+					"path": [
+						"categories"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
